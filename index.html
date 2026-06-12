@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>СтикерБот</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root{
+    --red:#c20024; --red-soft:#fdecef; --red-line:#d8a3ad;
+    --bg:#ffffff; --card:#ffffff; --text:#1a1a1a; --muted:#9a9a9a;
+    --line:#ececec; --chip:#faf6f2;
+  }
+  body.tg-dark{
+    --bg:#1c1c1e; --card:#2c2c2e; --text:#f2f2f2; --muted:#8e8e93;
+    --line:#3a3a3c; --chip:#2c2c2e; --red-soft:#3a1620;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; font-family:-apple-system,"Segoe UI",Roboto,sans-serif;
+       background:var(--bg); color:var(--text);}
+  .wrap{max-width:480px; margin:0 auto; padding:0 16px 24px;}
+  header{background:var(--red); color:#fff; margin:0 -16px 16px;
+         padding:16px 16px 0;}
+  .htop{display:flex; justify-content:space-between; align-items:center; font-size:13px;}
+  .htitle{display:flex; align-items:center; gap:9px; margin-top:14px;}
+  .htitle b{font-size:20px; font-weight:600; line-height:1.1;}
+  .stripe{height:6px; margin-top:14px;
+          background:repeating-linear-gradient(90deg,#fff 0 16px,transparent 16px 32px);
+          opacity:.45;}
+  .label{font-size:13px; color:var(--muted); margin:0 0 8px;}
+  .packs{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:22px;}
+  .pack{border:1px solid var(--line); border-radius:12px; padding:12px 4px;
+        text-align:center; cursor:pointer; transition:.12s; background:var(--card);}
+  .pack:active{transform:scale(.97);}
+  .pack.sel{border:1.5px solid var(--red); background:var(--red-soft);}
+  .pack .ic{font-size:24px; color:var(--muted);}
+  .pack.sel .ic{color:var(--red);}
+  .pack span{display:block; margin-top:6px; font-size:12px; color:var(--muted);}
+  .pack.sel span{color:var(--red); font-weight:500;}
+  .pack.add .ic{color:var(--red);} .pack.add{border-style:dashed; border-color:var(--red-line);}
+  .pack.add span{color:var(--red);}
+  .acts{display:flex; flex-direction:column; gap:9px; margin-bottom:20px;}
+  .act{display:flex; align-items:center; gap:12px; border:1px solid var(--line);
+       border-left:3px solid var(--red); border-radius:10px; padding:12px;
+       cursor:pointer; transition:.12s; background:var(--card);}
+  .act:active{transform:scale(.99); background:var(--chip);}
+  .act .ic{font-size:21px; color:var(--red); width:24px; text-align:center;}
+  .act .body{flex:1; min-width:0;}
+  .act .t{font-size:15px; font-weight:500;}
+  .act .d{font-size:12px; color:var(--muted); margin-top:1px;}
+  .act .arr{color:var(--muted); opacity:.5;}
+  .queue{display:flex; justify-content:space-between; align-items:center;
+         background:var(--chip); border-radius:10px; padding:11px 13px; font-size:13px;}
+  .queue .q{color:var(--muted);} .queue .v{color:var(--red); font-weight:500;}
+  .hint{text-align:center; font-size:12px; color:var(--muted); margin:14px 0 0;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="htop"><span>СтикерБот</span><span></span></div>
+    <div class="htitle">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 4.5h-5L8 10z" fill="#fff" stroke="none"/></svg>
+      <b>СтикерБот</b>
+    </div>
+    <div class="stripe"></div>
+  </header>
+
+  <p class="label">Стикерпак</p>
+  <div class="packs">
+    <div class="pack sel" data-pack="pinco">
+      <div class="ic">⚽️</div><span>Pinco</span>
+    </div>
+    <div class="pack" data-pack="pinco2">
+      <div class="ic">🖼</div><span>Pinco 2</span>
+    </div>
+    <div class="pack add" data-pack="upload">
+      <div class="ic">＋</div><span>Загрузить</span>
+    </div>
+  </div>
+
+  <p class="label">Что сделать</p>
+  <div class="acts">
+    <div class="act" data-act="slice">
+      <div class="ic">✂️</div>
+      <div class="body"><div class="t">Нарезать матч</div>
+        <div class="d">длинное видео → клипы со стикером</div></div>
+      <div class="arr">›</div>
+    </div>
+    <div class="act" data-act="search">
+      <div class="ic">🔎</div>
+      <div class="body"><div class="t">Найти исходники</div>
+        <div class="d">топ роликов на YouTube по запросу</div></div>
+      <div class="arr">›</div>
+    </div>
+    <div class="act" data-act="link">
+      <div class="ic">🔗</div>
+      <div class="body"><div class="t">Загрузить по ссылке</div>
+        <div class="d">YouTube (CC) или архив заказчика</div></div>
+      <div class="arr">›</div>
+    </div>
+    <div class="act" data-act="publish">
+      <div class="ic">▶️</div>
+      <div class="body"><div class="t">Опубликовать в Shorts</div>
+        <div class="d">в пиковое время, с подписью</div></div>
+      <div class="arr">›</div>
+    </div>
+  </div>
+
+  <div class="queue">
+    <span class="q">В очереди</span>
+    <span class="v" id="queue">—</span>
+  </div>
+
+  <p class="hint">пришлите видео — стикер встанет сам</p>
+</div>
+
+<script>
+  const tg = window.Telegram.WebApp;
+  tg.ready(); tg.expand();
+  if (tg.colorScheme === "dark") document.body.classList.add("tg-dark");
+  tg.onEvent("themeChanged", () => {
+    document.body.classList.toggle("tg-dark", tg.colorScheme === "dark");
+  });
+
+  let sticker = "pinco";
+
+  function send(payload){
+    try { tg.HapticFeedback.impactOccurred("light"); } catch(e){}
+    tg.sendData(JSON.stringify(payload));
+    tg.close();
+  }
+
+  document.querySelectorAll(".pack").forEach(el => {
+    el.addEventListener("click", () => {
+      const id = el.dataset.pack;
+      if (id === "upload"){ send({action:"sticker", id:"upload"}); return; }
+      document.querySelectorAll(".pack").forEach(p => p.classList.remove("sel"));
+      el.classList.add("sel");
+      sticker = id;
+      send({action:"sticker", id});
+    });
+  });
+
+  document.querySelectorAll(".act").forEach(el => {
+    el.addEventListener("click", () => send({action: el.dataset.act, sticker}));
+  });
+
+  tg.MainButton.setText("Обработать ролик").show();
+  tg.MainButton.onClick(() => send({action:"send_video", sticker}));
+
+  const q = tg.initDataUnsafe && tg.initDataUnsafe.start_param;
+  document.getElementById("queue").textContent = q ? q : "готов к работе";
+</script>
+</body>
+</html>
